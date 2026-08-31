@@ -1,10 +1,6 @@
 ﻿import { MOCK_PRODUCTS } from '../data/mockProducts';
 import type { MusicGenre, Product, ProductFilterState } from '../types/product';
 
-/**
- * Contrato de interfaz agnóstico (Port) para el servicio de productos.
- * Todo el frontend consume EXCLUSIVAMENTE esta interfaz.
- */
 export interface IProductService {
   getProducts(filter?: Partial<ProductFilterState>): Promise<Product[]>;
   getProductById(id: string): Promise<Product | null>;
@@ -14,10 +10,6 @@ export interface IProductService {
   getProductsByGenre(genre: MusicGenre, limit?: number): Promise<Product[]>;
 }
 
-/**
- * Implementación Mock Asíncrona (Adapter Local).
- * Simula latencia de red real para estados de carga (skeletons).
- */
 export class MockProductService implements IProductService {
   private products: Product[] = [...MOCK_PRODUCTS];
   private latencyMs: number;
@@ -41,17 +33,13 @@ export class MockProductService implements IProductService {
       return result;
     }
 
-    // 1. Filtro por tipo (vinilo vs cuadro)
     if (filter.type && filter.type !== 'all') {
       result = result.filter((item) => item.type === filter.type);
     }
-
-    // 2. Filtro por género musical
     if (filter.genre && filter.genre !== 'all') {
       result = result.filter((item) => item.genre === filter.genre);
     }
 
-    // 3. Búsqueda por texto (nombre, artista, álbum, tags)
     if (filter.searchQuery && filter.searchQuery.trim() !== '') {
       const query = filter.searchQuery.toLowerCase().trim();
       result = result.filter(
@@ -63,7 +51,6 @@ export class MockProductService implements IProductService {
       );
     }
 
-    // 4. Filtro por rango de precio
     if (typeof filter.minPrice === 'number') {
       result = result.filter((item) => item.price >= filter.minPrice!);
     }
@@ -71,12 +58,9 @@ export class MockProductService implements IProductService {
       result = result.filter((item) => item.price <= filter.maxPrice!);
     }
 
-    // 5. Filtro de solo stock disponible
     if (filter.inStockOnly) {
       result = result.filter((item) => item.stock > 0);
     }
-
-    // 6. Ordenamiento
     if (filter.sortBy) {
       switch (filter.sortBy) {
         case 'price-asc':
@@ -146,9 +130,4 @@ export class MockProductService implements IProductService {
   }
 }
 
-/**
- * ==============================================================================
- * ÚNICO PUNTO DE ENTRADA / ADAPTADOR ACTIVO DEL PROYECTO
- * ==============================================================================
- */
 export const productService: IProductService = new MockProductService();
